@@ -1,53 +1,35 @@
 import { json } from '@sveltejs/kit';
-import DOMPurify from 'isomorphic-dompurify';
-import { connectToDatabase } from '$db/mongo';
 import { Email } from '$db/models/Email';
+import { WEBHOOK_SECRET } from '$env/static/private';
+import { sanitize } from '$lib/server/services/sanitizer';
 
-export async function POST({ request }) {
+export const POST = async ({ request, url }) => {
+    // URL se secret nikaalna
+    const secret = url.searchParams.get('secret');
+
+    // Verification check
+    if (secret !== WEBHOOK_SECRET) {
+        return json({ error: 'Unauthorized: Invalid Webhook Secret' }, { status: 401 });
+    }
+
     try {
         const payload = await request.json();
-
-        if (payload.type !== 'email.received') {
-            return json({ success: true, message: 'Ignored non-receive event' });
-        }
-
-        const emailData = payload.data;
-
-        await connectToDatabase();
-
-        const cleanHtml = DOMPurify.sanitize(emailData.html || '');
-        const rawText = emailData.text || '';
-        const snippet = rawText.replace(/\s+/g, ' ').substring(0, 100).trim();
-
-        let fromName = '';
-        let fromAddress = emailData.from;
-
-        const fromMatch = emailData.from.match(/(.*)<(.*)>/);
-        if (fromMatch) {
-            fromName = fromMatch[1].trim().replace(/"/g, '');
-            fromAddress = fromMatch[2].trim();
-        }
+        
+        // Incoming email data nikaalna
+        const { from, subject, text, html, createdAt } = payload;
 
         const newEmail = new Email({
-            from: {
-                name: fromName,
-                address: fromAddress
-            },
-            to: Array.isArray(emailData.to) ? emailData.to[0] : emailData.to,
-            subject: emailData.subject || '(No Subject)',
-            body: {
-                html: cleanHtml,
-                text: rawText,
-                snippet: snippet
-            },
-            folder: 'inbox',
-            isRead: false
+            from,
+            subject,
+            body: sanitize(html || text),
+            receivedAt: createdAt || new Date(),
+            isRead: false,
+            isDeleted: false
         });
 
         await newEmail.save();
-
-        return json({ success: true, id: newEmail._id });
-    } catch (error) {
-        return json({ error: 'Webhook processing failed' }, { status: 500 });
+        return json({ success: true, message: 'Email stored securely' });
+    } catch (err) {
+        return json({ error: 'Failed to process inbound email' }, { status: 500 });
     }
-}
+};
