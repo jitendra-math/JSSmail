@@ -1,29 +1,31 @@
 import { start_mongo } from '$lib/server/db/mongo';
+import { JWT_SECRET } from '$env/static/private';
 import { redirect } from '@sveltejs/kit';
+import jwt from 'jsonwebtoken';
 
-start_mongo().then(() => {
-	console.log('MongoDB connection initialized');
-}).catch(err => {
-	console.error('MongoDB failed to start:', err);
-});
+start_mongo();
 
 export const handle = async ({ event, resolve }) => {
-	const session = event.cookies.get('session');
+	const token = event.cookies.get('session');
 	
-	if (session) {
-		event.locals.session = JSON.parse(session);
+	if (token) {
+		try {
+			// Token verify kar rhe hain
+			const decoded = jwt.verify(token, JWT_SECRET);
+			event.locals.session = decoded;
+		} catch (err) {
+			// Agar token nakli nikla toh session uda do
+			event.cookies.delete('session', { path: '/' });
+			event.locals.session = null;
+		}
 	}
 
-	const isProtectedRoute = event.url.pathname.startsWith('/(app)') || 
-							 event.url.pathname.startsWith('/inbox') ||
-							 event.url.pathname.startsWith('/compose') ||
-							 event.url.pathname.startsWith('/templates') ||
-							 event.url.pathname.startsWith('/trash');
+	const isProtectedRoute = event.url.pathname.startsWith('/inbox') || 
+							 event.url.pathname.startsWith('/compose');
 
 	if (isProtectedRoute && !event.locals.session) {
 		throw redirect(303, '/login');
 	}
 
-	const response = await resolve(event);
-	return response;
+	return await resolve(event);
 };
