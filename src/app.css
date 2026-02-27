@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--ios-blue: 0 122 255;
+		--ios-bg: 242 242 247;
+	}
+
+	html {
+		-webkit-tap-highlight-color: transparent;
+		-webkit-touch-callout: none;
+		user-select: none;
+		scroll-behavior: smooth;
+		height: -webkit-fill-available;
+	}
+
+	body {
+		@apply bg-ios-bg dark:bg-black text-black dark:text-white font-sans antialiased;
+		min-height: 100vh;
+		min-height: -webkit-fill-available;
+		overflow-x: hidden;
+		overscroll-behavior-y: none;
+	}
+
+	.prose {
+		@apply max-w-none;
+	}
+	
+	.prose a {
+		@apply text-ios-blue no-underline;
+	}
+
+	input, textarea {
+		user-select: text;
+		@apply bg-transparent;
+	}
+}
+
+@layer utilities {
+	.pt-safe-top {
+		padding-top: env(safe-area-inset-top);
+	}
+	.pb-safe-bottom {
+		padding-bottom: env(safe-area-inset-bottom);
+	}
+	.px-safe {
+		padding-left: env(safe-area-inset-left);
+		padding-right: env(safe-area-inset-right);
+	}
+	.h-screen-safe {
+		height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+	}
+}
+
+::-webkit-scrollbar {
+	display: none;
+}
+
+* {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}

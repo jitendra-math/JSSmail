@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"module": "esnext",
+		"paths": {
+			"$lib": ["./src/lib"],
+			"$lib/*": ["./src/lib/*"],
+			"$db": ["./src/lib/server/db"],
+			"$db/*": ["./src/lib/server/db/*"]
+		}
+	},
+	"typeRoots": ["./node_modules/@types"]
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
+		
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="apple-mobile-web-app-title" content="JSS Mail" />
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/icons/icon-512.png" />
+		
+		<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+
+		<style>
+			body {
+				-webkit-tap-highlight-color: transparent;
+				overscroll-behavior-y: none;
+			}
+			.pb-safe-bottom {
+				padding-bottom: env(safe-area-inset-bottom);
+			}
+		</style>
+		
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover" class="bg-ios-bg dark:bg-black selection:bg-ios-blue/30">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
